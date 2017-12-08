@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   read.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lesanche <lesanche@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alamy <alamy@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/27 17:43:55 by alamy             #+#    #+#             */
-/*   Updated: 2017/12/06 17:52:29 by lesanche         ###   ########.fr       */
+/*   Updated: 2017/12/08 18:32:57 by alamy            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,10 +90,9 @@ char	**ft_read(char *argv)
 	char 	***tab_arrange;
 	char 	**map;
 	int		nb_block;
-	int		n;
 	int num_block = 0;
+	int size_map;
 
-	n = 0;
 	fd = open(argv, O_RDONLY);
 	if (fd == -1)
 		write(1, "open() failed\n", 15);
@@ -106,11 +105,10 @@ char	**ft_read(char *argv)
 			nb_block = ft_nb_block(nb, buffer);
 			tab_tab = create_tab_tab(buffer, nb_block);
 			tab_arrange = tab_tab_arrange(tab_tab, nb_block);
-			int size_map = ft_sqrt(nb_block * 4);
+			size_map = ft_sqrt(nb_block * 4);
 			map = map_create(size_map);
-			map = map_solve(map, tab_arrange, nb_block, num_block, size_map);
-			ft_impression(map, size_map);
-			}
+			map = resolution(tab_arrange, nb_block, size_map);
+		}
 	}
 	return(0);
 }

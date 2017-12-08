@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Deydou <Deydou@student.42.fr>              +#+  +:+       +#+        */
+/*   By: alamy <alamy@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/30 15:21:47 by alamy             #+#    #+#             */
-/*   Updated: 2017/12/06 21:49:22 by Deydou           ###   ########.fr       */
+/*   Updated: 2017/12/08 18:31:24 by alamy            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ char **map_create(int size_map)
 	return (map);
 }
 
-
 void	get_tetra_size(char ***tab_arrange, int num_block, int size[2])
 {
 	int a;
@@ -77,7 +76,9 @@ static int is_posible_position(char **map, char ***tab_arrange, int num_block, i
 
 	get_tetra_size(tab_arrange, num_block, t_size);
 	if ((t_size[0] + position[0] > size_map) || (t_size[1] + position[1] > size_map))
+	{
 		return(0);
+	}
 	a = 0;
 	while (a < (t_size[0]))
 	{
@@ -85,7 +86,9 @@ static int is_posible_position(char **map, char ***tab_arrange, int num_block, i
 		while (b < (t_size[1])) 
 		{
 			if ((tab_arrange[num_block][a][b] != '.') && (map[a + position[0]][b + position[1]] != '.'))
+			{
 				return(0);
+			}
 			b++;
 		}
 		a++;
@@ -108,7 +111,6 @@ static int on_essaie_ttes_les_positions(char **map, char ***tab_arrange, int num
 			if (position[0] >= size_map)
 			{
 				return(0);
-				
 			}
 		}
 		
@@ -146,76 +148,94 @@ static char **placer_tetri_ds_map(char **map, char ***tab_arrange, int num_block
 	return(map);
 }
 
-static char **enlever_tetri_ds_map(char **map, char ***tab_arrange, int num_block, int size_map, int save_position[2])
+static char **map_retour_en_arriere(char **map, int num_block, int size_map)
 {
-	int x;
-	int y;
 	int a;
 	int b;
-	int t_size[2];
-	int position[2];
 
-	position[0] = 0;
-	position[1] = 0;
-	t_size[0] = 0;
-	t_size[1] = 0;
-	get_tetra_size(tab_arrange, num_block, t_size);
-	on_essaie_ttes_les_positions(map, tab_arrange, num_block, size_map, position);
-	x = position[0];
-	a = 0; while (a < 4)
+	a = 0;
+	b = 0;
+	while (map[a] && a < (size_map))
 	{
-		y = position[1] - t_size[1];
-		b = 0;
-		while (b < 4)
+		while (map[a][b] && b < (size_map))
 		{
-			if (tab_arrange[num_block][a][b] != '.')
-				map[x][y] = '.';
+			if (map[a][b] == 'A' + num_block)
+				map[a][b] = '.';
 			b++;
-			y++;
 		}
 		a++;
-		x++;
+		b = 0;
 	}
 	return(map);
 }
 
 char **map_solve(char **map, char ***tab_arrange, int nb_block, int num_block, int size_map)
 {
+	char **tmp;
 	int position[2];
-	int save_position[2];
 
 	position[0] = 0;
 	position[1] = 0;
 
-	if (on_essaie_ttes_les_positions(map, tab_arrange, num_block, size_map, position) == 1) // si on peut placer le tetri
+	if (num_block == nb_block)
 	{
-		map = placer_tetri_ds_map(map, tab_arrange, num_block, position, size_map);
-		if (num_block == (nb_block))
-			return(map);
-		map_solve(map, tab_arrange, nb_block, num_block + 1, size_map);
-		save_position[0] = position[0];
-		save_position[1] = position[1];
+		return(map);
 	}
-	/*if (position[0] == -1) // si on peut pas placer le tetri
+	while (position[0] <= size_map)
 	{
-		map = enlever_tetri_ds_map(map, tab_arrange, (num_block - 1), size_map, save_position);
-	} */
-	return(map);
-}
-		
-void ft_impression(char **map, int size_map)
+		while (position[1] <= (size_map)) 
+		{
+			while (is_posible_position(map, tab_arrange, num_block, position, size_map) == 1)
+			{
+				map = placer_tetri_ds_map(map, tab_arrange, num_block, position, size_map);
+				tmp = map_solve(map, tab_arrange, nb_block, num_block + 1, size_map);
+				if (tmp)
+					return (tmp);
+			}
+			map_retour_en_arriere(map, num_block, size_map);
+			position[1]++;
+		}	
+		position[1] = 0;
+		position[0]++;
+	}
+	return(NULL);
+} 
+
+static char **print_map(char **map, int size_map)
 {
 	int a = 0;
 	int b = 0;
 	while (map[a] && a < size_map)
 	{
-		while (map[a][b])
+		while (map[a][b] && b < size_map)
 		{
-			printf("%c", map[a][b]);
+			ft_putchar(map[a][b]);
 			b++;
 		}
-		printf("\n");
+		ft_putchar('\n');
 		b = 0;
 		a++;
 	} 
+	return(NULL);
 }
+
+char **resolution(char ***tab_arrange, int nb_block, int size)
+{
+	char **solve;
+	int num_block;
+	char **map;
+
+	map = map_create(size);
+	num_block = 0;
+	solve = map_solve(map, tab_arrange, nb_block, num_block, size);
+	if (solve == NULL)
+	{
+		return (resolution(tab_arrange, nb_block, size + 1));
+	}
+	else
+	{
+		print_map(map, size);
+	}
+	return(NULL);
+}
+
