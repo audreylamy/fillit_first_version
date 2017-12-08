@@ -6,7 +6,7 @@
 /*   By: alamy <alamy@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/30 15:21:47 by alamy             #+#    #+#             */
-/*   Updated: 2017/12/08 18:31:24 by alamy            ###   ########.fr       */
+/*   Updated: 2017/12/08 18:43:18 by alamy            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ static int on_essaie_ttes_les_positions(char **map, char ***tab_arrange, int num
 	return(1);
 }
 
-static char **placer_tetri_ds_map(char **map, char ***tab_arrange, int num_block, int position[2], int size_map)
+static char **placer_tetri_ds_map(char **map, char ***tab_arrange, int num_block, int position[2])
 {
 	int x;
 	int y;
@@ -187,7 +187,7 @@ char **map_solve(char **map, char ***tab_arrange, int nb_block, int num_block, i
 		{
 			while (is_posible_position(map, tab_arrange, num_block, position, size_map) == 1)
 			{
-				map = placer_tetri_ds_map(map, tab_arrange, num_block, position, size_map);
+				map = placer_tetri_ds_map(map, tab_arrange, num_block, position);
 				tmp = map_solve(map, tab_arrange, nb_block, num_block + 1, size_map);
 				if (tmp)
 					return (tmp);
